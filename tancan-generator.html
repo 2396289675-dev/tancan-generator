@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>谈参生成器 · tancan-generator</title>
+<style>
+  :root{
+    --bg:#ffffff; --bg2:#f7f7f5; --bg3:#f1efe8;
+    --tx:#1f1f1d; --tx2:#5f5e5a; --tx3:#888780;
+    --bd:rgba(0,0,0,.12); --bd2:rgba(0,0,0,.22);
+    --purple:#534ab7; --purple-l:#eeedfe; --purple-d:#3c3489;
+    --teal:#0f6e56; --teal-l:#e1f5ee;
+    --r-md:8px; --r-lg:12px; --r-xl:16px;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);color:var(--tx);background:var(--bg3);line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:.5px solid var(--bd)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:56px}
+  .brand{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:500}
+  .logo{width:26px;height:26px;border-radius:7px;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500}
+  .nav-links{display:flex;gap:22px}
+  .nav-links a{font-size:13px;color:var(--tx2);text-decoration:none}
+  .nav-links a:hover{color:var(--tx)}
+  .btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--r-md);border:.5px solid var(--bd2);background:var(--bg);cursor:pointer;color:var(--tx);text-decoration:none;transition:.15s}
+  .btn:hover{background:var(--bg2)}
+  .btn-p{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .btn-p:hover{background:var(--purple-d)}
+
+  /* hero */
+  .hero{background:var(--bg);border-bottom:.5px solid var(--bd);padding:72px 0 64px}
+  .tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--purple-d);background:var(--purple-l);padding:5px 12px;border-radius:999px;margin-bottom:20px}
+  .tag .d{width:6px;height:6px;border-radius:50%;background:var(--purple)}
+  h1{font-size:38px;font-weight:500;letter-spacing:-.5px;line-height:1.25;margin-bottom:18px}
+  h1 span{color:var(--purple)}
+  .lead{font-size:16px;color:var(--tx2);max-width:600px;margin-bottom:32px}
+  .hero-act{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .hero-meta{font-size:12px;color:var(--tx3);margin-top:14px}
+
+  section{padding:64px 0}
+  .sec-tag{font-size:12px;color:var(--purple);font-weight:500;letter-spacing:.5px;margin-bottom:10px}
+  .sec-title{font-size:26px;font-weight:500;letter-spacing:-.3px;margin-bottom:12px}
+  .sec-desc{font-size:14px;color:var(--tx2);max-width:640px;margin-bottom:36px}
+
+  /* templates */
+  .tpl{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+  .card{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--r-lg);padding:24px}
+  .card-feat{border:2px solid var(--purple)}
+  .badge{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:var(--purple-l);color:var(--purple-d);margin-bottom:14px}
+  .card h3{font-size:16px;font-weight:500;margin-bottom:6px}
+  .card .sub{font-size:12px;color:var(--tx3);margin-bottom:18px}
+  .flow{list-style:none;display:flex;flex-direction:column;gap:0}
+  .flow li{display:flex;gap:10px;font-size:13px;padding:9px 0;border-top:.5px solid var(--bd);color:var(--tx2)}
+  .flow li:first-child{border-top:none}
+  .flow .n{flex:none;width:18px;height:18px;border-radius:50%;background:var(--bg3);color:var(--tx2);font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .card-feat .flow .n{background:var(--purple-l);color:var(--purple-d)}
+
+  /* demo */
+  .demo{background:var(--bg2)}
+  .demo-box{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--r-lg);overflow:hidden}
+  .demo-bar{display:flex;align-items:center;gap:7px;padding:12px 16px;border-bottom:.5px solid var(--bd);background:var(--bg)}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--bd2)}
+  .demo-title{font-size:12px;color:var(--tx3);margin-left:6px}
+  .demo-body{display:grid;grid-template-columns:1fr 1fr;min-height:380px}
+  @media(max-width:720px){.demo-body{grid-template-columns:1fr}}
+  .chat{padding:22px 24px;border-right:.5px solid var(--bd);display:flex;flex-direction:column;gap:14px}
+  @media(max-width:720px){.chat{border-right:none;border-bottom:.5px solid var(--bd)}}
+  .msg{display:flex;gap:9px;font-size:13px;align-items:flex-start}
+  .av{flex:none;width:26px;height:26px;border-radius:7px;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:500}
+  .av-u{background:var(--bg3);color:var(--tx2)}
+  .av-a{background:var(--purple);color:#fff}
+  .bub{background:var(--bg2);border-radius:10px;padding:10px 13px;font-size:13px;line-height:1.6;max-width:92%}
+  .bub-a{background:var(--purple-l);color:var(--purple-d)}
+  .doc{padding:26px 30px;overflow:auto}
+  .doc h4{font-size:17px;font-weight:500;margin-bottom:4px}
+  .doc .meta{font-size:11px;color:var(--tx3);margin-bottom:18px;padding-bottom:12px;border-bottom:.5px solid var(--bd)}
+  .doc h5{font-size:13px;font-weight:500;margin:16px 0 6px;color:var(--purple-d)}
+  .doc p{font-size:12.5px;color:var(--tx2);margin-bottom:8px}
+  .doc ul{padding-left:16px;margin-bottom:8px}
+  .doc li{font-size:12.5px;color:var(--tx2);margin-bottom:3px}
+  .doc .hl{background:#fff8e6;padding:1px 4px;border-radius:3px}
+
+  /* features */
+  .grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+  .feat{background:var(--bg);border:.5px solid var(--bd);border-radius:var(--r-md);padding:18px 20px}
+  .feat .ic{width:32px;height:32px;border-radius:8px;background:var(--purple-l);color:var(--purple-d);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;margin-bottom:12px}
+  .feat h4{font-size:14px;font-weight:500;margin-bottom:5px}
+  .feat p{font-size:12.5px;color:var(--tx2)}
+
+  /* install */
+  .code{background:#1f1f1d;color:#e8e8e4;border-radius:var(--r-md);padding:18px 20px;font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;line-height:1.8;overflow-x:auto;margin-top:16px}
+  .code .c{color:#888780}
+  .code .k{color:#afa9ec}
+  .tabs{display:flex;gap:8px;margin-bottom:0}
+  .tab{font-size:12.5px;padding:7px 14px;border-radius:var(--r-md) var(--r-md) 0 0;border:.5px solid var(--bd);border-bottom:none;background:var(--bg2);color:var(--tx2);cursor:pointer}
+  .tab.on{background:var(--bg);color:var(--tx);font-weight:500}
+  .code-wrap{border:.5px solid var(--bd);border-radius:0 var(--r-md) var(--r-md) var(--r-md)}
+
+  /* cta */
+  .cta{background:var(--purple);color:#fff;border-radius:var(--r-xl);padding:48px;text-align:center;margin:0 0 40px}
+  .cta h2{font-size:24px;font-weight:500;margin-bottom:10px}
+  .cta p{font-size:14px;opacity:.85;margin-bottom:24px}
+  .cta .btn-p{background:#fff;color:var(--purple-d);border-color:#fff}
+  .cta .btn-p:hover{background:#f0f0f0}
+
+  footer{border-top:.5px solid var(--bd);background:var(--bg);padding:28px 0;font-size:12px;color:var(--tx3);text-align:center}
+
+  .fade{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s}
+  .fade.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <div class="brand"><span class="logo">谈</span> 谈参生成器</div>
+    <div class="nav-links">
+      <a href="#templates">模板</a>
+      <a href="#demo">效果演示</a>
+      <a href="#features">特性</a>
+      <a href="#install">安装</a>
+    </div>
+    <a class="btn btn-p" href="#install">开始使用</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag"><span class="d"></span> WorkBuddy Skill · 已开源</div>
+    <h1>告诉它你要写谁的谈参，<br><span>一份可直接用的 Word</span> 就出来了</h1>
+    <p class="lead">高层拜访谈参、会前准备材料、媒体拜访简报 —— 输入一个姓名和职务，它自动判断模板、联网核实履历与近期观点、采集你方的过往合作，产出一份结构完整、事实可核实的谈参文档。</p>
+    <div class="hero-act">
+      <a class="btn btn-p" href="#demo">看效果演示</a>
+      <a class="btn" href="#install">查看安装方式</a>
+    </div>
+    <div class="hero-meta">零第三方依赖 · 纯指令型技能 · 兼容 Python 3.9+ 环境</div>
+  </div>
+</header>
+
+<section id="templates">
+  <div class="wrap">
+    <div class="sec-tag">两套模板</div>
+    <h2 class="sec-title">按对象类型自动选择</h2>
+    <p class="sec-desc">机构领导和个人IP的谈参，结构完全不同。技能会先判断类型，再套用对应的模块组合——不会把党报社长的谈参写成大V的写法。</p>
+    <div class="tpl">
+      <div class="card fade">
+        <span class="badge">A 类</span>
+        <h3>机构型</h3>
+        <div class="sub">报社社长、总编辑、评论部主任等机构领导</div>
+        <ul class="flow">
+          <li><span class="n">1</span><span>机构情况简介（定位、矩阵、垂类账号）</span></li>
+          <li><span class="n">2</span><span>主要领导简介（履历时间线、上任背景）</span></li>
+          <li><span class="n">3</span><span>与腾讯关系概要（投放、选题报道、联合产品）</span></li>
+          <li><span class="n">4</span><span>建议沟通话题（3 个可落地方向）</span></li>
+        </ul>
+      </div>
+      <div class="card card-feat fade">
+        <span class="badge">B 类</span>
+        <h3>个人IP型</h3>
+        <div class="sub">评论员、自媒体头部等无机构依附的个人IP</div>
+        <ul class="flow">
+          <li><span class="n">1</span><span>客户简介（平台、粉丝量级、内容风格）</span></li>
+          <li><span class="n">2</span><span>履历信息（完整时间线与代表作）</span></li>
+          <li><span class="n">3</span><span>客户重要性 · 舆论评价与争议性</span></li>
+          <li><span class="n">4</span><span>近半年关注重点与主要观点</span></li>
+          <li><span class="n">5</span><span>过往合作概要 · 可沟通合作方向</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="sec-tag">效果演示</div>
+    <h2 class="sec-title">一次对话，产出全文</h2>
+    <p class="sec-desc">左侧是你和它的对话，右侧是它实时生成的谈参文档。先问后写，拿到合作信息才动笔。</p>
+    <div class="demo-box">
+      <div class="demo-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="demo-title">谈参生成器 — 对话演示</span>
+      </div>
+      <div class="demo-body">
+        <div class="chat">
+          <div class="msg"><span class="av av-u">你</span><span class="bub">帮我写一份XX财经杂志总编辑的谈参，下周拜访用</span></div>
+          <div class="msg"><span class="av av-a">AI</span><span class="bub bub-a">好的，这位属于<b>机构型（A类）</b>。我先联网核实履历和杂志情况，同时请你补充几项合作信息 ↓</span></div>
+          <div class="msg"><span class="av av-a">AI</span><span class="bub bub-a">① 与该媒体的年框合作金额（近三年）<br>② 投放平台与垂类账号<br>③ 重要选题报道支持<br>④ 双方联合做过的产品<br>⑤ 历史合作峰值与近况空档</span></div>
+          <div class="msg"><span class="av av-u">你</span><span class="bub">年框约 80 万，主要在微信公众号和视频号；去年一起做过一个 AI 专题</span></div>
+          <div class="msg"><span class="av av-a">AI</span><span class="bub bub-a">收到，信息齐全。正在生成 Word 文档… 履历与近期观点已联网核实，来源附在文末。</span></div>
+        </div>
+        <div class="doc">
+          <h4>XX财经杂志社总编辑 张三 谈参</h4>
+          <div class="meta">机构型 · A 类　|　核实说明附文末</div>
+
+          <h5>一、机构情况简介</h5>
+          <p>《XX财经》创刊于 1998 年，主管单位为 XX 集团，是财经类月刊，在宏观经济、资本市场、产业政策等领域具有较强的议题设置能力，全网用户约 XX 万。</p>
+
+          <h5>二、主要领导简介</h5>
+          <p>张三，XX 年履新总编辑，<span class="hl">目前系上任初期</span>，履历显示其长期深耕财经媒体一线，后续大概率会推动媒体融合与 AI 技术在内容采编侧的应用。</p>
+
+          <h5>三、与腾讯关系概要</h5>
+          <ul>
+            <li>媒体投放合作：年框约 80 万元，覆盖微信公众号、视频号</li>
+            <li>重要选题报道：在腾讯数字生态大会等节点给予报道支持</li>
+            <li>融合创新案例：去年联合推出 AI 专题</li>
+          </ul>
+
+          <h5>四、建议沟通话题</h5>
+          <ul>
+            <li>① AI 辅助采编：介绍腾讯混元在媒体内容生产的应用</li>
+            <li>② 财经主题联合策划：共建年度财经观察报告</li>
+            <li>③ 视频号数字人资讯：已完成技术能力对接，可快速上线</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-tag">核心特性</div>
+    <h2 class="sec-title">为什么它比手动写更可靠</h2>
+    <p class="sec-desc">谈参的价值在于事实准确、结构完整、敢说真话。这几点是它被固化成规则的地方。</p>
+    <div class="grid4">
+      <div class="feat fade"><div class="ic">核</div><h4>公开信息全部联网核实</h4><p>履历、机构情况、近半年观点与争议，一律先搜索核实，文末附来源，核实不到标「待核实」。</p></div>
+      <div class="feat fade"><div class="ic">填</div><h4>合作信息清单式采集</h4><p>不编造金额与案例。先出清单让你填，你说没有合作，它就写「具备重启空间」。</p></div>
+      <div class="feat fade"><div class="ic">真</div><h4>争议与敏感信息保留</h4><p>个人IP的舆论争议、被禁言等如实写进对应模块——这是内部谈参区别于对外提案的价值。</p></div>
+      <div class="feat fade"><div class="ic">落</div><h4>合作方向具体到产品</h4><p>不停留在「加强合作」，每个方向都落到可执行的产品、活动或选题，腾讯做资源提供方。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="sec-tag">安装</div>
+    <h2 class="sec-title">两种方式，一分钟装好</h2>
+    <p class="sec-desc">技能本身是纯 Markdown 指令文件，零第三方依赖。安装后重启 WorkBuddy，对话中说「写XX的谈参」即可触发。</p>
+    <div class="tabs">
+      <span class="tab on" data-t="0">一键安装</span>
+      <span class="tab" data-t="1">手动安装</span>
+    </div>
+    <div class="code-wrap">
+      <div class="code" data-code="0"><span class="c"># 克隆仓库并安装</span>
+git clone https://github.com/<span class="k">&lt;你的用户名&gt;</span>/tancan-generator.git
+cd tancan-generator
+bash install.sh</div>
+      <div class="code" data-code="1" style="display:none"><span class="c"># 把整个文件夹放到 skills 目录即可</span>
+cp -R tancan-generator ~/.workbuddy/skills/</div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="cta fade">
+      <h2>下次直接说「写XX的谈参」</h2>
+      <p>它会先判断模板类型、向你采集合作信息、联网核实公开信息，然后生成 Word 文档。</p>
+      <a class="btn btn-p" href="#top">回到顶部 ↑</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">tancan-generator · MIT License · 为 WorkBuddy 打造</div>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab');
+  var codes=document.querySelectorAll('.code');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('on')});
+    t.classList.add('on');
+    var i=t.getAttribute('data-t');
+    codes.forEach(function(c){c.style.display=c.getAttribute('data-code')===i?'block':'none'});
+  })});
+
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}});
+  },{threshold:.12});
+  document.querySelectorAll('.fade').forEach(function(el){io.observe(el)});
+</script>
+</body>
+</html>
